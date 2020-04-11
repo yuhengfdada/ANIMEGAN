@@ -1,7 +1,7 @@
 # ANIMEGAN
 
 The following are forked from STGAN:
-## STGAN (CVPR 2019)
+### STGAN
 
 **Tensorflow** implementation of [**STGAN: A Unified Selective Transfer Network for Arbitrary Image Attribute Editing**](https://arxiv.org/abs/1904.09709)
 
@@ -19,26 +19,6 @@ The following are forked from STGAN:
 - Image translation results
 
     <p align="center"><img src="./pic/season.jpg" width="50%"><br><center>Results of season translation, the top two rows are <a href="http://latex.codecogs.com/gif.latex?summer%20\rightarrow%20winter"><img src="http://latex.codecogs.com/gif.latex?summer%20\rightarrow%20winter" alt="$summer \rightarrow winter$"></a>, and the bottom two rows are <a href="http://latex.codecogs.com/gif.latex?winter%20\rightarrow%20summer"><img src="http://latex.codecogs.com/gif.latex?winter%20\rightarrow%20summer" alt="$winter \rightarrow summer$"></a>.</center></p>
-
-## Preparation
-
-- **Prerequisites**
-    - Tensorflow (r1.4 - r1.12 should work fine)
-    - Python 3.x with matplotlib, numpy and scipy
-
-- **Dataset**
-    - [CelebA](http://openaccess.thecvf.com/content_iccv_2015/papers/Liu_Deep_Learning_Face_ICCV_2015_paper.pdf) dataset (Find more details from the [project page](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html))
-        - [Images](https://drive.google.com/open?id=0B7EVK8r0v71pZjFTYXZWM3FlRnM) should be placed in ***DATAROOT/img_align_celeba/\*.jpg***
-        - [Attribute labels](https://drive.google.com/open?id=0B7EVK8r0v71pblRyaVFSWGxPY0U) should be placed in ***DATAROOT/list_attr_celeba.txt***
-        - If google drive is unreachable, you can get the data from [Baidu Cloud](http://pan.baidu.com/s/1eSNpdRG)
-    - We follow the settings of AttGAN, kindly refer to [AttGAN](https://github.com/LynnHo/AttGAN-Tensorflow) for more dataset preparation details
-
-- **pre-trained model**
-    - download the model from [Google Drive](https://drive.google.com/open?id=1329IbLE6877DcDUut1reKxckijBJye7N) or [Baidu Cloud (4qeu)](https://pan.baidu.com/s/1D43d_8oER8_Xm4P9SovvuQ), and unzip the files to ***./output/***,
-
-## Quick Start
-
-Exemplar commands are listed here for a quick start.
 
 ### Training
 
@@ -100,15 +80,5 @@ You can use `show_image.py` to show the generated images, the code has been test
     ```
 
 
-## Citation
-If you find STGAN useful in your research work, please consider citing:
-
-    @InProceedings{liu2019stgan,
-      title={STGAN: A Unified Selective Transfer Network for Arbitrary Image Attribute Editing},
-      author={Liu, Ming and Ding, Yukang and Xia, Min and Liu, Xiao and Ding, Errui and Zuo, Wangmeng and Wen, Shilei},
-      booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-      year={2019}
-    }
-
 ## Acknowledgement
-The code is built upon [AttGAN](https://github.com/LynnHo/AttGAN-Tensorflow), thanks for their excellent work!
+ANIMEGAN is largely based on [STGAN](https://github.com/csmliu/STGAN).
