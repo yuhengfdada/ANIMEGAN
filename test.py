@@ -20,6 +20,8 @@ import models
 import os
 
 
+
+    
 # ==============================================================================
 # =                                    param                                   =
 # ==============================================================================
@@ -47,6 +49,7 @@ with open('./output/%s/setting.txt' % args_.experiment_name) as f:
 
 # model
 atts = args['atts']
+# print(atts)
 n_att = len(atts)
 img_size = args['img_size']
 shortcut_layers = args['shortcut_layers']
@@ -142,6 +145,9 @@ try:
         xa_sample_ipt = batch[0]
         a_sample_ipt = batch[1]
         b_sample_ipt_list = [a_sample_ipt.copy() for _ in range(n_slide if test_slide else 1)]
+        print("xa_sample_ipt", xa_sample_ipt.shape)
+        print("a_sample_ipt", a_sample_ipt.shape)
+        print("b_sample_ipt", b_sample_ipt.shape)
         if test_slide: # test_slide
             for i in range(n_slide):
                 test_int = (test_int_max - test_int_min) / (n_slide - 1) * i + test_int_min
@@ -173,6 +179,8 @@ try:
             x_sample_opt_list.append(sess.run(x_sample, feed_dict={xa_sample: xa_sample_ipt,
                                                                    _b_sample: _b_sample_ipt,
                                                                    raw_b_sample: raw_a_sample_ipt}))
+        print("multi_atts", multi_atts)
+#         print("x_sample_opt_list", np.array(x_sample_opt_list).shape)
         sample = np.concatenate(x_sample_opt_list, 2)
 
         if test_slide:     save_folder = 'sample_testing_slide'
@@ -180,11 +188,27 @@ try:
         else:              save_folder = 'sample_testing'
         save_dir = './output/%s/%s' % (experiment_name, save_folder)
         pylib.mkdir(save_dir)
-        im.imwrite(sample.squeeze(0), '%s/%06d%s.png' % (save_dir,
+        
+        
+        print('unsqueezed', sample.shape)
+        sq = sample.squeeze(0)
+        print(sq[:,200:220,:])
+        sq = sq[:,:128,:]
+#         print(sq.shape)
+#         print('%06d.png starts!' % (idx + 182638 if img is None else img[idx]))
+
+        plt.subplot(1, 1, 1)
+        imshow_noax(sq, normalize=True)
+        print('%s/%06d%s.png' % (save_dir,
                                                          idx + 182638 if img is None else img[idx], 
                                                          '_%s'%(str(test_atts)) if multi_atts else ''))
+        plt.show()
+        
+#         im.imwrite(sq, '%s/%06d%s.png' % (save_dir,
+#                                                          idx + 182638 if img is None else img[idx], 
+#                                                          '_%s'%(str(test_atts)) if multi_atts else ''))
 
-        print('%06d.png done!' % (idx + 182638 if img is None else img[idx]))
+#         print('%06d.png done!' % (idx + 182638 if img is None else img[idx]))
 except:
     traceback.print_exc()
 finally:

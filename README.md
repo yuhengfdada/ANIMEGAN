@@ -1,4 +1,4 @@
-#ANIMEGAN
+# ANIMEGAN
 
 The following are forked from STGAN:
 ## STGAN (CVPR 2019)

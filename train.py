@@ -147,7 +147,7 @@ with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
 # ==============================================================================
 # =                                   graphs                                   =
 # ==============================================================================
-
+tf.reset_default_graph()
 # data
 if threads >= 0:
     cpu_config = tf.ConfigProto(intra_op_parallelism_threads = threads//2,
@@ -308,6 +308,7 @@ except:
     print('NOTE: Initializing all parameters...')
     sess.run(tf.global_variables_initializer())
 
+
 # train
 try:
     # data for sampling
@@ -342,7 +343,7 @@ try:
             summary_writer.add_summary(g_summary_opt, it)
 
             # display
-            if (it + 1) % 1 == 0:
+            if (it + 1) % 50 == 0:
                 print("Epoch: (%3d) (%5d/%5d) Time: %s!" % (epoch, it_in_epoch, it_per_epoch, t))
 
             # save
