@@ -127,19 +127,27 @@ class Dataset(object):
 
 class Celeba(Dataset):
 
-    att_dict = {'5_o_Clock_Shadow': 0, 'Arched_Eyebrows': 1, 'Attractive': 2,
-                'Bags_Under_Eyes': 3, 'Bald': 4, 'Bangs': 5, 'Big_Lips': 6,
-                'Big_Nose': 7, 'Black_Hair': 8, 'Blond_Hair': 9, 'Blurry': 10,
-                'Brown_Hair': 11, 'Bushy_Eyebrows': 12, 'Chubby': 13,
-                'Double_Chin': 14, 'Eyeglasses': 15, 'Goatee': 16,
-                'Gray_Hair': 17, 'Heavy_Makeup': 18, 'High_Cheekbones': 19,
-                'Male': 20, 'Mouth_Slightly_Open': 21, 'Mustache': 22,
-                'Narrow_Eyes': 23, 'No_Beard': 24, 'Oval_Face': 25,
-                'Pale_Skin': 26, 'Pointy_Nose': 27, 'Receding_Hairline': 28,
-                'Rosy_Cheeks': 29, 'Sideburns': 30, 'Smiling': 31,
-                'Straight_Hair': 32, 'Wavy_Hair': 33, 'Wearing_Earrings': 34,
-                'Wearing_Hat': 35, 'Wearing_Lipstick': 36,
-                'Wearing_Necklace': 37, 'Wearing_Necktie': 38, 'Young': 39}
+    
+    cel_str = "5_o_Clock_Shadow Arched_Eyebrows Attractive Bags_Under_Eyes Bald Bangs Big_Lips Big_Nose Black_Hair Blond_Hair Blurry Brown_Hair Bushy_Eyebrows Chubby Double_Chin Eyeglasses Goatee Gray_Hair Heavy_Makeup High_Cheekbones Male Mouth_Slightly_Open Mustache Narrow_Eyes No_Beard Oval_Face Pale_Skin Pointy_Nose Receding_Hairline Rosy_Cheeks Sideburns Smiling Straight_Hair Wavy_Hair Wearing_Earrings Wearing_Hat Wearing_Lipstick Wearing_Necklace Wearing_Necktie Young"
+    ani_str = "blonde_hair brown_hair black_hair blue_hair pink_hair purple_hair green_hair red_hair silver_hair white_hair orange_hair aqua_hair gray_hair blue_eyes red_eyes brown_eyes green_eyes purple_eyes yellow_eyes pink_eyes aqua_eyes black_eyes orange_eyes long_hair short_hair twintails drill_hair ponytail blush smile open_mouth hat ribbon glasses"
+    att_str = ani_str.split()
+#     print(att_str)
+#     print(att_str)
+    att_dict = dict(zip(att_str, range(len(att_str))))
+#     print(att_dict)
+#     att_dict = {'5_o_Clock_Shadow': 0, 'Arched_Eyebrows': 1, 'Attractive': 2,
+#                 'Bags_Under_Eyes': 3, 'Bald': 4, 'Bangs': 5, 'Big_Lips': 6,
+#                 'Big_Nose': 7, 'Black_Hair': 8, 'Blond_Hair': 9, 'Blurry': 10,
+#                 'Brown_Hair': 11, 'Bushy_Eyebrows': 12, 'Chubby': 13,
+#                 'Double_Chin': 14, 'Eyeglasses': 15, 'Goatee': 16,
+#                 'Gray_Hair': 17, 'Heavy_Makeup': 18, 'High_Cheekbones': 19,
+#                 'Male': 20, 'Mouth_Slightly_Open': 21, 'Mustache': 22,
+#                 'Narrow_Eyes': 23, 'No_Beard': 24, 'Oval_Face': 25,
+#                 'Pale_Skin': 26, 'Pointy_Nose': 27, 'Receding_Hairline': 28,
+#                 'Rosy_Cheeks': 29, 'Sideburns': 30, 'Smiling': 31,
+#                 'Straight_Hair': 32, 'Wavy_Hair': 33, 'Wearing_Earrings': 34,
+#                 'Wearing_Hat': 35, 'Wearing_Lipstick': 36,
+#                 'Wearing_Necklace': 37, 'Wearing_Necktie': 38, 'Young': 39}
 
     def __init__(self, data_dir, atts, img_resize, batch_size, prefetch_batch=2, drop_remainder=True,
                  num_threads=16, shuffle=True, buffer_size=4096, repeat=-1, sess=None, part='train', crop=True, im_no=None):
@@ -154,10 +162,15 @@ class Celeba(Dataset):
             img_dir_png = os.path.join(data_dir, 'img_crop_celeba_png')
 
         names = np.loadtxt(list_file, skiprows=2, usecols=[0], dtype=np.str)
+        img_paths = "none!"
+#         print(img_dir_jpg)
         if os.path.exists(img_dir_png):
             img_paths = [os.path.join(img_dir_png, name.replace('jpg', 'png')) for name in names]
         elif os.path.exists(img_dir_jpg):
             img_paths = [os.path.join(img_dir_jpg, name) for name in names]
+#             print(names[:5])
+#             print(img_paths[:5])
+#         print(img_paths)
 
         att_id = [Celeba.att_dict[att] + 1 for att in atts]
         labels = np.loadtxt(list_file, skiprows=2, usecols=att_id, dtype=np.int64)
@@ -182,6 +195,9 @@ class Celeba(Dataset):
             label = (label + 1) // 2
             return img, label
 
+#         alloc = [182000, 182637]
+        alloc = [36100, 36500]
+        print(len(img_paths))
         if im_no is not None:
             drop_remainder = False
             shuffle = False
@@ -192,15 +208,17 @@ class Celeba(Dataset):
             drop_remainder = False
             shuffle = False
             repeat = 1
-            img_paths = img_paths[182637:]
-            labels = labels[182637:]
+            img_paths = img_paths[alloc[1]:]
+            labels = labels[alloc[1]:]
         elif part == 'val':
-            img_paths = img_paths[182000:182637]
-            labels = labels[182000:182637]
+            img_paths = img_paths[alloc[0]:alloc[1]]
+            labels = labels[alloc[0]:alloc[1]]
         else:
-            img_paths = img_paths[:182000]
-            labels = labels[:182000]
+            img_paths = img_paths[:alloc[0]]
+            labels = labels[:alloc[0]]
 
+#         print(img_paths[:10])
+#         exit()
         dataset = disk_image_batch_dataset(img_paths=img_paths,
                                            labels=labels,
                                            batch_size=batch_size,
@@ -211,6 +229,7 @@ class Celeba(Dataset):
                                            shuffle=shuffle,
                                            buffer_size=buffer_size,
                                            repeat=repeat)
+#         exit()
         self._bulid(dataset, sess)
 
         self._img_num = len(img_paths)

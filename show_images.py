@@ -79,7 +79,7 @@ lmt_high = 202599
 img_nums = list(range(lmt_low, lmt_high+1))
 
 
-att_file = '/home/data/Datasets/CelebA/Img/list_attr_celeba.txt'
+att_file = '../celeba/list_attr_celeba.txt'
 att_cols = [att_dict[i]+1 for i in atts]
 attr = np.loadtxt(att_file, skiprows=2, usecols=att_cols, dtype=np.str)
 
@@ -171,7 +171,9 @@ class MyWindow:
 
     def process_img(self, num):
         imgs = {}
+        num = 200000
         for cat in paths:
+            wimg = Image.open(path.join(paths[cat], str(num)+'.png'))
             try:
                 wimg = Image.open(path.join(paths[cat], str(num)+'.png'))
             except:

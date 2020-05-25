@@ -38,28 +38,6 @@ def Genc(x, dim=64, n_layers=5, multi_inputs=1, is_training=True):
             zs.append(z)
         return zs
 
-def ConvGRUCell(in_data, state, out_channel, is_training=True, kernel_size=3, norm='none', pass_state='lstate'):
-    if norm == 'bn':
-        norm_fn = partial(batch_norm, is_training=is_training)
-    elif norm == 'in':
-        norm_fn = instance_norm
-    else:
-        norm_fn = None
-    gate = partial(conv, normalizer_fn=norm_fn, activation_fn=sigmoid)
-    info = partial(conv, normalizer_fn=norm_fn, activation_fn=tanh)
-    with tf.name_scope('ConvGRUCell'):
-        state_ = dconv(state, out_channel, 4, 2)  # upsample and make `channel` identical to `out_channel`
-        reset_gate = gate(tf.concat([in_data, state_], axis=3), out_channel, kernel_size)
-        update_gate = gate(tf.concat([in_data, state_], axis=3), out_channel, kernel_size)
-        new_state = reset_gate * state_
-        new_info = info(tf.concat([in_data, new_state], axis=3), out_channel, kernel_size)
-        output = (1-update_gate)*state_ + update_gate*new_info
-        if pass_state == 'gru':
-            return output, output
-        elif pass_state == 'direct':
-            return output, state_
-        else: # 'stu'
-            return output, new_state
 
 def Gstu(zs, _a, dim=64, n_layers=1, inject_layers=0, is_training=True, kernel_size=3, norm='none', pass_state='stu'):
     def _concat(z, z_, _a):
@@ -77,8 +55,27 @@ def Gstu(zs, _a, dim=64, n_layers=1, inject_layers=0, is_training=True, kernel_s
         state = _concat(zs[-1], None, _a)
         for i in range(n_layers): # n_layers <= 4
             d = min(dim * 2**(n_layers - 1 - i), MAX_DIM)
-            output = ConvGRUCell(zs[n_layers - 1 - i], state, d, is_training=is_training,
-                                 kernel_size=kernel_size, norm=norm, pass_state=pass_state)
+            
+            in_data= zs[n_layers - 1 - i]
+            is_training=True
+            if norm == 'bn':
+                norm_fn = partial(batch_norm, is_training=is_training)
+            elif norm == 'in':
+                norm_fn = instance_norm
+            else:
+                norm_fn = None
+            gate = partial(conv, normalizer_fn=norm_fn, activation_fn=sigmoid)
+            info = partial(conv, normalizer_fn=norm_fn, activation_fn=tanh)
+            with tf.name_scope('ConvGRUCell'):
+                s = dconv(state, d, 4, 2)  # upsample and make `channel` identical to `out_channel`
+                cc = tf.concat([in_data, s], axis=3)
+                update_gate = gate(cc, d, kernel_size)
+                reset_gate = gate(cc, d, kernel_size)
+                ns = reset_gate * s
+                new_info = info(tf.concat([in_data, ns], axis=3), d, kernel_size)
+                output = (1-update_gate)*s + update_gate*new_info
+            
+            output = (output, ns)
             zs_.insert(0, output[0])
             if inject_layers > i:
                 state = _concat(output[1], None, _a)
@@ -145,7 +142,7 @@ def gradient_penalty(f, real, fake=None):
         with tf.name_scope('interpolate'):
             if b is None:   # interpolation in DRAGAN
                 beta = tf.random_uniform(shape=tf.shape(a), minval=0., maxval=1.)
-                _, variance = tf.nn.moments(a, range(a.shape.ndims))
+                _, variance = tf.nn.moments(a, [0,1,2,3])
                 b = a + 0.5 * tf.sqrt(variance) * beta
             shape = [tf.shape(a)[0]] + [1] * (a.shape.ndims - 1)
             alpha = tf.random_uniform(shape=shape, minval=0., maxval=1.)
