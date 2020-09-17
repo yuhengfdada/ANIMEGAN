@@ -1,5 +1,8 @@
 # ANIMEGAN
 
+Final report is available here: [**report**](https://github.com/yuhengfdada/ANIMEGAN/blob/master/final%20report.pdf)
+
+
 The following are forked from STGAN:
 ### STGAN
 
